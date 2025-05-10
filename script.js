@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Supabase connection successful.');
     }
     
+    // Hide save-status element
+    const saveStatus = document.getElementById('save-status');
+    if (saveStatus) {
+        saveStatus.style.display = 'none';
+    }
+    
     // DOM elements
     const card = document.querySelector('.card');
     const themeSelect = document.getElementById('theme');
@@ -511,12 +517,10 @@ async function saveCardData() {
     try {
         // Check if Supabase client is available and properly initialized
         if (typeof supabase !== 'undefined' && supabase && typeof supabase.from === 'function') {
-            // Show saving indicator
+            // Hide save status element
             const saveStatus = document.getElementById('save-status');
             if (saveStatus) {
-                saveStatus.innerHTML = '<p>Saving card to database...</p>';
-                saveStatus.style.color = '#8e44ad';
-                saveStatus.style.display = 'block';
+                saveStatus.style.display = 'none';
             }
             
             // First check if the card already exists
@@ -527,7 +531,6 @@ async function saveCardData() {
                 
             if (checkError) {
                 console.error('Error checking if card exists:', checkError);
-                // Fallback to insert with try/catch
             }
             
             let result;
@@ -564,38 +567,29 @@ async function saveCardData() {
                 
             if (error) {
                 console.error('Error saving card to Supabase:', error);
-                // Show error message
-                if (saveStatus) {
-                    saveStatus.innerHTML = `<p style="color: red;">Error saving card: ${error.message}</p>`;
-                }
-                // Also save to sessionStorage as fallback
+                // Save to sessionStorage as fallback
                 sessionStorage.setItem(`card_${cardId}`, JSON.stringify(cardData));
             } else {
                 console.log('Card saved to Supabase successfully:', data);
-                // Show success message and share link
-                if (saveStatus) {
-                    const shareLink = window.location.origin + window.location.pathname + '?card=' + cardId;
-                    saveStatus.innerHTML = `
-                        <p>Card saved successfully! Share the link below:</p>
-                        <input type="text" id="share-link-input" value="${shareLink}" readonly 
-                            style="width: 100%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
-                            onclick="this.select()">
-                        <button onclick="copyShareLink()" style="margin-top: 5px; padding: 5px 10px; background: #8e44ad; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                            Copy Link
-                        </button>
-                    `;
-                    saveStatus.style.color = 'green';
-                }
+                
+                // Auto-show share options instead of displaying success message
+                showShareOptions();
             }
         } else {
             // Supabase not available, use sessionStorage fallback
             console.warn('Supabase client not available, using sessionStorage fallback');
             sessionStorage.setItem(`card_${cardId}`, JSON.stringify(cardData));
+            
+            // Still show share options
+            showShareOptions();
         }
     } catch (err) {
         console.error('Error connecting to Supabase:', err);
         // Fallback to sessionStorage if Supabase fails
         sessionStorage.setItem(`card_${cardId}`, JSON.stringify(cardData));
+        
+        // Still show share options
+        showShareOptions();
     }
 }
 
@@ -605,7 +599,6 @@ function copyShareLink() {
     if (linkInput) {
         linkInput.select();
         document.execCommand('copy');
-        alert('Link copied to clipboard!');
     }
 }
 
@@ -678,10 +671,6 @@ async function checkForSharedCard() {
                 
                 // Show loading state
                 const customizeSection = document.querySelector('.customize-section');
-                const loadingNotice = document.createElement('div');
-                loadingNotice.className = 'share-notice loading';
-                loadingNotice.innerHTML = '<p>Loading shared card data...</p>';
-                customizeSection.insertBefore(loadingNotice, customizeSection.firstChild);
                 
                 console.log('Fetching card with ID:', cardId);
                 
@@ -691,8 +680,7 @@ async function checkForSharedCard() {
                     .select('*')
                     .eq('card_id', cardId);
                 
-                // Remove loading notice
-                loadingNotice.remove();
+                // No loading notice to remove
                     
                 if (error) {
                     console.error('Error fetching card from Supabase:', error);
