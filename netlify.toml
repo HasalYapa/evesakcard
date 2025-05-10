@@ -3,7 +3,7 @@
   command = "echo 'No build required'"
 
 [build.environment]
-  NODE_VERSION = "18.x"
+  NODE_VERSION = "18.17.0"
 
 # Define URL redirects for single-page applications
 [[redirects]]
