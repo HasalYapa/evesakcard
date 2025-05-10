@@ -765,19 +765,6 @@ function loadSharedCardData(cardData) {
         // Hide the customize section initially
         customizeSection.style.display = 'none';
         
-        // Add success notice
-        const successNotice = document.createElement('div');
-        successNotice.className = 'share-notice success';
-        successNotice.innerHTML = `
-            <p style="color: green">✓ Shared card loaded successfully!</p>
-            <p>You're viewing a card that was shared with you.</p>
-            <p>Use the buttons below to create your own card or share this one further.</p>
-        `;
-        
-        // Insert at the top of the card back
-        const cardBack = document.querySelector('.card-back');
-        cardBack.insertBefore(successNotice, cardBack.firstChild.nextSibling);
-        
         // Add event listeners for the action buttons
         const createOwnBtn = document.getElementById('create-own-btn');
         const shareReceivedBtn = document.getElementById('share-received-btn');
@@ -787,12 +774,6 @@ function loadSharedCardData(cardData) {
             // Toggle visibility
             customizeSection.style.display = 'block';
             sharedCardActions.style.display = 'none';
-            
-            // Change notice
-            successNotice.innerHTML = `
-                <p>You can now create your own personalized card.</p>
-                <p>Customize the message below and click "Apply" to see your changes.</p>
-            `;
             
             // Track that we're creating our own
             viewingOriginal = false;
@@ -820,12 +801,6 @@ function loadSharedCardData(cardData) {
                 // We're creating our own card, so generate a new card ID
                 localStorage.removeItem('vesakCardId');
                 
-                // Change notice
-                successNotice.innerHTML = `
-                    <p style="color: green">✓ Your new card has been created!</p>
-                    <p>Now you can share your personalized version with others.</p>
-                `;
-                
                 // Show the personal message with new content
                 personalMessageDiv.style.display = 'block';
                 
@@ -852,28 +827,6 @@ function displayEmptySharedCard(isSupabaseError = false) {
         return;
     }
     
-    // Create notice element
-    const noticeElement = document.createElement('div');
-    noticeElement.className = 'share-notice';
-    
-    if (isSupabaseError) {
-        noticeElement.innerHTML = `
-            <p>This is a shared Vesak card link.</p>
-            <p>There was an issue connecting to our server to retrieve the card data.</p>
-            <p>This may happen if you haven't set up Supabase yet. <a href="#" id="setup-help">Need help setting up?</a></p>
-        `;
-    } else {
-        noticeElement.innerHTML = `
-            <p>This is a shared Vesak card link.</p>
-            <p>The sender's message will appear here once the server connection is established.</p>
-            <p>You can also create your own card below.</p>
-        `;
-    }
-    
-    // Insert at the top of the card back (not just the customize section)
-    const cardBack = document.querySelector('.card-back');
-    cardBack.insertBefore(noticeElement, cardBack.firstChild.nextSibling);
-    
     // Hide customize section initially
     customizeSection.style.display = 'none';
     
@@ -892,12 +845,6 @@ function displayEmptySharedCard(isSupabaseError = false) {
         // Hide action buttons
         sharedCardActions.style.display = 'none';
         
-        // Update notice
-        noticeElement.innerHTML = `
-            <p>You can now create your own personalized card.</p>
-            <p>Customize the message below and click "Apply" to see your changes.</p>
-        `;
-        
         // Clean any old card ID
         localStorage.removeItem('vesakCardId');
     });
@@ -906,41 +853,6 @@ function displayEmptySharedCard(isSupabaseError = false) {
     shareReceivedBtn.addEventListener('click', function() {
         showShareOptions();
     });
-    
-    // Add setup help click handler
-    const setupHelpLink = document.getElementById('setup-help');
-    if (setupHelpLink) {
-        setupHelpLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('To set up Supabase:\n\n1. Create a Supabase account at supabase.com\n2. Create a new project\n3. Create a "vesak_cards" table with the schema from SUPABASE_SETUP.md\n4. Copy your project URL and anon key to config.js\n\nSee SUPABASE_SETUP.md for detailed instructions.');
-        });
-    }
-    
-    // Add styling
-    const style = document.createElement('style');
-    style.textContent = `
-        .share-notice {
-            background-color: rgba(142, 68, 173, 0.1);
-            border-left: 4px solid var(--primary-color);
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            color: var(--primary-color);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .share-notice p {
-            margin: 5px 0;
-        }
-        
-        .share-notice a {
-            color: var(--primary-color);
-            text-decoration: underline;
-            font-weight: bold;
-        }
-    `;
-    document.head.appendChild(style);
     
     // Make the "Apply" button more prominent
     const applyBtn = document.getElementById('apply-btn');
