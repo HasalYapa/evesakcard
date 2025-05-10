@@ -511,6 +511,14 @@ async function saveCardData() {
     try {
         // Check if Supabase client is available and properly initialized
         if (typeof supabase !== 'undefined' && supabase && typeof supabase.from === 'function') {
+            // Show saving indicator
+            const saveStatus = document.getElementById('save-status');
+            if (saveStatus) {
+                saveStatus.innerHTML = '<p>Saving card to database...</p>';
+                saveStatus.style.color = '#8e44ad';
+                saveStatus.style.display = 'block';
+            }
+            
             // Save card data to Supabase
             const { data, error } = await supabase
                 .from('vesak_cards')
@@ -526,10 +534,28 @@ async function saveCardData() {
                 
             if (error) {
                 console.error('Error saving card to Supabase:', error);
+                // Show error message
+                if (saveStatus) {
+                    saveStatus.innerHTML = `<p style="color: red;">Error saving card: ${error.message}</p>`;
+                }
                 // Also save to sessionStorage as fallback
                 sessionStorage.setItem(`card_${cardId}`, JSON.stringify(cardData));
             } else {
                 console.log('Card saved to Supabase successfully:', data);
+                // Show success message and share link
+                if (saveStatus) {
+                    const shareLink = window.location.origin + window.location.pathname + '?card=' + cardId;
+                    saveStatus.innerHTML = `
+                        <p>Card saved successfully! Share the link below:</p>
+                        <input type="text" id="share-link-input" value="${shareLink}" readonly 
+                            style="width: 100%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" 
+                            onclick="this.select()">
+                        <button onclick="copyShareLink()" style="margin-top: 5px; padding: 5px 10px; background: #8e44ad; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Copy Link
+                        </button>
+                    `;
+                    saveStatus.style.color = 'green';
+                }
             }
         } else {
             // Supabase not available, use sessionStorage fallback
@@ -540,6 +566,16 @@ async function saveCardData() {
         console.error('Error connecting to Supabase:', err);
         // Fallback to sessionStorage if Supabase fails
         sessionStorage.setItem(`card_${cardId}`, JSON.stringify(cardData));
+    }
+}
+
+// Function to copy share link to clipboard
+function copyShareLink() {
+    const linkInput = document.getElementById('share-link-input');
+    if (linkInput) {
+        linkInput.select();
+        document.execCommand('copy');
+        alert('Link copied to clipboard!');
     }
 }
 
