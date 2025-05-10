@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Sender Name</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f8f4ff;
+        }
+        h1, h2 {
+            color: #8e44ad;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background: #9b59b6;
+        }
+        .preview-card {
+            border: 1px dashed #8e44ad;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            background-color: #fcfaff;
+        }
+        .preview-card p {
+            margin: 10px 0;
+        }
+        .preview-card .recipient {
+            font-weight: bold;
+            color: #8e44ad;
+        }
+        .preview-card .message {
+            font-style: italic;
+            margin: 15px 0;
+        }
+        .preview-card .sender {
+            font-weight: bold;
+            color: #8e44ad;
+            text-align: right;
+        }
+        .success {
+            color: #27ae60;
+            background: #e8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+            background: #fde9e7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            color: #8e44ad;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Update Sender Name</h1>
+    
+    <div class="card">
+        <div id="current-card">
+            <h2>Current Card Details</h2>
+            <div class="loading" id="loading-current">Loading card details...</div>
+            <div id="current-card-details"></div>
+        </div>
+        
+        <div id="update-form">
+            <h2>Update Sender Name</h2>
+            <div class="form-group">
+                <label for="sender-name">Your Name:</label>
+                <input type="text" id="sender-name" name="sender-name" placeholder="Enter your name" required>
+            </div>
+            
+            <button id="update-btn">Update Sender Name</button>
+            
+            <div class="loading" id="loading-update" style="display: none;">Updating...</div>
+            <div id="update-result"></div>
+        </div>
+        
+        <div id="preview-section" style="display: none;">
+            <h2>Card Preview</h2>
+            <div class="preview-card">
+                <p class="recipient">To: <span id="preview-recipient">Special Recipient</span></p>
+                <p class="message" id="preview-message">This is a special test card created with a specific ID. May you be blessed with peace and happiness on Vesak Day.</p>
+                <p class="sender">From: <span id="preview-sender"></span></p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </div>
+    </div>
+    
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpc2lscnRqZHJzY3hyeWx0a3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NzY1NzYsImV4cCI6MjA2MjQ1MjU3Nn0.8Z3FyDF_y81SxaeFXcP8qWLBhHpHkpJs6aOS6NpdNkY';
+        
+        // Card ID to update
+        const CARD_ID = 'mai6xoer08bun';
+        
+        // Initialize the Supabase client
+        let supabase;
+        let cardData = null;
+        
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client initialized');
+            
+            // Load the card data
+            fetchCardData();
+        } catch (err) {
+            console.error('Failed to initialize Supabase client:', err);
+            document.getElementById('current-card-details').innerHTML = `
+                <div class="error">
+                    <strong>Connection Error:</strong> Failed to initialize Supabase client.
+                    <br>Error: ${err.message}
+                </div>
+            `;
+            document.getElementById('loading-current').style.display = 'none';
+        }
+        
+        // Fetch the card data
+        async function fetchCardData() {
+            const loadingElement = document.getElementById('loading-current');
+            const detailsElement = document.getElementById('current-card-details');
+            
+            loadingElement.style.display = 'block';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .eq('card_id', CARD_ID)
+                    .maybeSingle();
+                
+                loadingElement.style.display = 'none';
+                
+                if (error) {
+                    throw error;
+                }
+                
+                if (!data) {
+                    detailsElement.innerHTML = `
+                        <div class="error">
+                            <strong>Card Not Found:</strong> The special card with ID "${CARD_ID}" was not found.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Store the card data
+                cardData = data;
+                
+                // Update the preview
+                document.getElementById('preview-recipient').textContent = data.recipient || 'Special Recipient';
+                document.getElementById('preview-message').textContent = data.message || 'This is a special test card created with a specific ID. May you be blessed with peace and happiness on Vesak Day.';
+                document.getElementById('preview-sender').textContent = data.sender || 'Anonymous';
+                document.getElementById('preview-section').style.display = 'block';
+                
+                // Set the current sender name in the input
+                document.getElementById('sender-name').value = data.sender || '';
+                
+                // Display the current details
+                detailsElement.innerHTML = `
+                    <div class="success">
+                        <strong>Card Details:</strong>
+                        <p>Card ID: ${data.card_id}</p>
+                        <p>Recipient: ${data.recipient || 'Special Recipient'}</p>
+                        <p>Current Sender: ${data.sender || 'Anonymous'}</p>
+                    </div>
+                `;
+            } catch (err) {
+                loadingElement.style.display = 'none';
+                console.error('Error fetching card:', err);
+                
+                detailsElement.innerHTML = `
+                    <div class="error">
+                        <strong>Error Fetching Card:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Update the sender name
+        document.getElementById('update-btn').addEventListener('click', async function() {
+            const senderName = document.getElementById('sender-name').value.trim();
+            const loadingElement = document.getElementById('loading-update');
+            const resultElement = document.getElementById('update-result');
+            
+            if (!senderName) {
+                resultElement.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> Please enter your name.
+                    </div>
+                `;
+                return;
+            }
+            
+            loadingElement.style.display = 'block';
+            resultElement.innerHTML = '';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .update({ sender: senderName })
+                    .eq('card_id', CARD_ID)
+                    .select();
+                
+                loadingElement.style.display = 'none';
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Update the preview
+                document.getElementById('preview-sender').textContent = senderName;
+                
+                // Generate the card link
+                const baseUrl = window.location.origin + window.location.pathname.replace('update-sender.html', '');
+                const cardUrl = `${baseUrl}index.html?card=${CARD_ID}`;
+                
+                resultElement.innerHTML = `
+                    <div class="success">
+                        <strong>Successfully Updated!</strong>
+                        <p>The sender name has been updated to "${senderName}".</p>
+                        <p style="margin-top: 15px;">
+                            <a href="${cardUrl}" target="_blank" style="display: inline-block; background: #27ae60; color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px;">
+                                View Your Card
+                            </a>
+                        </p>
+                    </div>
+                `;
+                
+                // Update the details
+                document.getElementById('current-card-details').innerHTML = `
+                    <div class="success">
+                        <strong>Card Details:</strong>
+                        <p>Card ID: ${CARD_ID}</p>
+                        <p>Recipient: ${cardData.recipient || 'Special Recipient'}</p>
+                        <p>Current Sender: ${senderName}</p>
+                    </div>
+                `;
+            } catch (err) {
+                loadingElement.style.display = 'none';
+                console.error('Error updating sender:', err);
+                
+                resultElement.innerHTML = `
+                    <div class="error">
+                        <strong>Error Updating Sender:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        });
+        
+        // Update preview when typing
+        document.getElementById('sender-name').addEventListener('input', function() {
+            const senderName = this.value.trim() || 'Anonymous';
+            document.getElementById('preview-sender').textContent = senderName;
+        });
+    </script>
+</body>
+</html> 
