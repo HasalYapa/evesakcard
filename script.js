@@ -541,7 +541,7 @@ async function saveCardData() {
                         message: cardData.message,
                         theme: cardData.theme,
                         sender: cardData.sender,
-                        updated_at: new Date()
+                        created_at: new Date()
                     })
                     .eq('card_id', cardId)
                     .select();
