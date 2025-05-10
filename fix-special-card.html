@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Special Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #8e44ad;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #9b59b6;
+        }
+        .success {
+            color: #27ae60;
+            background: #e8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+            background: #fde9e7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Fix Special Card "mai6xoer08bun"</h1>
+    <p>This tool will update the special test card with ID "mai6xoer08bun" to have "Test Sender" in the sender field.</p>
+    
+    <div class="card">
+        <button id="fix-btn">Fix Special Card</button>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpc2lscnRqZHJzY3hyeWx0a3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NzY1NzYsImV4cCI6MjA2MjQ1MjU3Nn0.8Z3FyDF_y81SxaeFXcP8qWLBhHpHkpJs6aOS6NpdNkY';
+        
+        // Initialize the Supabase client
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client initialized');
+        } catch (err) {
+            console.error('Failed to initialize Supabase client:', err);
+            document.getElementById('result').innerHTML = `
+                <div class="error">
+                    <strong>Connection Error:</strong> Failed to initialize Supabase client.
+                    <br>Error: ${err.message}
+                </div>
+            `;
+        }
+        
+        // Fix the special card
+        async function fixSpecialCard() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Updating special card...</p>';
+            
+            try {
+                const cardId = 'mai6xoer08bun';
+                
+                // First check if card exists
+                const { data: existingCard, error: checkError } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .eq('card_id', cardId);
+                
+                if (checkError) {
+                    console.error('Error checking card:', checkError);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> Failed to check if card exists.
+                            <br>Error: ${checkError.message}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (!existingCard || existingCard.length === 0) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> Card with ID "${cardId}" doesn't exist.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Update the card's sender field
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .update({
+                        sender: 'Test Sender'
+                    })
+                    .eq('card_id', cardId)
+                    .select();
+                
+                if (error) {
+                    console.error('Error updating card:', error);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error Updating Card:</strong> ${error.message}
+                            <br>Code: ${error.code}
+                        </div>
+                    `;
+                } else {
+                    console.log('Card updated successfully:', data);
+                    
+                    // Generate the share link
+                    const baseUrl = window.location.origin + window.location.pathname.replace('fix-special-card.html', '');
+                    const shareUrl = `${baseUrl}index.html?card=${cardId}`;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Card Updated Successfully!</strong>
+                            <br>Sender field for card "${cardId}" has been set to "Test Sender".
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <p><strong>View the updated card:</strong></p>
+                            <p><a href="${shareUrl}" target="_blank">${shareUrl}</a></p>
+                        </div>
+                        
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Unexpected Error:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Event listener
+        document.getElementById('fix-btn').addEventListener('click', fixSpecialCard);
+    </script>
+</body>
+</html> 
