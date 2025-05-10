@@ -663,38 +663,111 @@ async function checkForSharedCard() {
 function loadSharedCardData(cardData) {
     console.log('Loading shared card data:', cardData);
     
-    // Set form values
+    // Set form values (but don't apply them yet)
     document.getElementById('recipient').value = cardData.recipient || '';
     document.getElementById('message').value = cardData.message || '';
     document.getElementById('theme').value = cardData.theme || 'gold';
     
-    // Apply the theme
+    // Apply the theme immediately
     document.body.className = '';
     if (cardData.theme) {
         document.body.classList.add(`${cardData.theme}-theme`);
     }
+    
+    // Store original sender's card data
+    const originalCardData = {
+        recipient: cardData.recipient || '',
+        message: cardData.message || '',
+        theme: cardData.theme || 'gold'
+    };
+    
+    // Create variable to track if we're viewing original or creating new
+    let viewingOriginal = true;
     
     // Update display if recipient and message exist
     if (cardData.recipient || cardData.message) {
         const personalMessageDiv = document.getElementById('personal-message-display');
         const recipientDisplay = document.getElementById('recipient-display');
         const messageDisplay = document.getElementById('message-display');
+        const sharedCardActions = document.getElementById('shared-card-actions');
+        const customizeSection = document.querySelector('.customize-section');
         
+        // Display the message
         personalMessageDiv.style.display = 'block';
         recipientDisplay.textContent = cardData.recipient || 'Friend';
         messageDisplay.textContent = cardData.message || 'Wishing you peace and joy on this Vesak Day.';
         
-        // Show a success notice
-        const customizeSection = document.querySelector('.customize-section');
+        // Show action buttons
+        sharedCardActions.style.display = 'flex';
+        
+        // Hide the customize section initially
+        customizeSection.style.display = 'none';
+        
+        // Add success notice
         const successNotice = document.createElement('div');
         successNotice.className = 'share-notice success';
         successNotice.innerHTML = `
             <p style="color: green">✓ Shared card loaded successfully!</p>
-            <p>You're viewing a card shared with you. You can customize it further below.</p>
+            <p>You're viewing a card that was shared with you.</p>
+            <p>Use the buttons below to create your own card or share this one further.</p>
         `;
         
-        // Insert at the top of the customize section
-        customizeSection.insertBefore(successNotice, customizeSection.firstChild);
+        // Insert at the top of the card back
+        const cardBack = document.querySelector('.card-back');
+        cardBack.insertBefore(successNotice, cardBack.firstChild.nextSibling);
+        
+        // Add event listeners for the action buttons
+        const createOwnBtn = document.getElementById('create-own-btn');
+        const shareReceivedBtn = document.getElementById('share-received-btn');
+        
+        // Create own button functionality
+        createOwnBtn.addEventListener('click', function() {
+            // Toggle visibility
+            customizeSection.style.display = 'block';
+            sharedCardActions.style.display = 'none';
+            
+            // Change notice
+            successNotice.innerHTML = `
+                <p>You can now create your own personalized card.</p>
+                <p>Customize the message below and click "Apply" to see your changes.</p>
+            `;
+            
+            // Track that we're creating our own
+            viewingOriginal = false;
+            
+            // Change apply button text
+            document.getElementById('apply-btn').textContent = 'Apply Changes';
+            
+            // Hide the current card display until they apply changes
+            personalMessageDiv.style.display = 'none';
+        });
+        
+        // Share received button functionality
+        shareReceivedBtn.addEventListener('click', function() {
+            // Just show share options for the current card
+            showShareOptions();
+        });
+        
+        // Modify Apply button behavior
+        const applyBtn = document.getElementById('apply-btn');
+        const originalApplyEvent = applyBtn.onclick;
+        
+        applyBtn.addEventListener('click', function() {
+            // If viewing original, do nothing special
+            if (!viewingOriginal) {
+                // We're creating our own card, so generate a new card ID
+                localStorage.removeItem('vesakCardId');
+                
+                // Change notice
+                successNotice.innerHTML = `
+                    <p style="color: green">✓ Your new card has been created!</p>
+                    <p>Now you can share your personalized version with others.</p>
+                `;
+                
+                // Show the personal message with new content
+                personalMessageDiv.style.display = 'block';
+            }
+        });
     }
     
     // Flip the card automatically to show the message
@@ -707,6 +780,7 @@ function loadSharedCardData(cardData) {
 function displayEmptySharedCard(isSupabaseError = false) {
     // Get the customize section and add notice at the top
     const customizeSection = document.querySelector('.customize-section');
+    const sharedCardActions = document.getElementById('shared-card-actions');
     
     // Check if notice already exists
     if (document.querySelector('.share-notice')) {
@@ -731,8 +805,42 @@ function displayEmptySharedCard(isSupabaseError = false) {
         `;
     }
     
-    // Insert at the top of the customize section
-    customizeSection.insertBefore(noticeElement, customizeSection.firstChild);
+    // Insert at the top of the card back (not just the customize section)
+    const cardBack = document.querySelector('.card-back');
+    cardBack.insertBefore(noticeElement, cardBack.firstChild.nextSibling);
+    
+    // Hide customize section initially
+    customizeSection.style.display = 'none';
+    
+    // Show the action buttons
+    sharedCardActions.style.display = 'flex';
+    
+    // Add event listeners to the action buttons
+    const createOwnBtn = document.getElementById('create-own-btn');
+    const shareReceivedBtn = document.getElementById('share-received-btn');
+    
+    // Create own button functionality
+    createOwnBtn.addEventListener('click', function() {
+        // Show customize section
+        customizeSection.style.display = 'block';
+        
+        // Hide action buttons
+        sharedCardActions.style.display = 'none';
+        
+        // Update notice
+        noticeElement.innerHTML = `
+            <p>You can now create your own personalized card.</p>
+            <p>Customize the message below and click "Apply" to see your changes.</p>
+        `;
+        
+        // Clean any old card ID
+        localStorage.removeItem('vesakCardId');
+    });
+    
+    // For sharing the default card
+    shareReceivedBtn.addEventListener('click', function() {
+        showShareOptions();
+    });
     
     // Add setup help click handler
     const setupHelpLink = document.getElementById('setup-help');

@@ -439,4 +439,46 @@ footer i {
 
 .share-notice.loading {
     animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Action buttons for shared cards */
+#shared-card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.action-btn {
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+#create-own-btn {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+#create-own-btn:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+}
+
+#share-received-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+#share-received-btn:hover {
+    background: linear-gradient(135deg, #2980b9, #3498db);
 } 
