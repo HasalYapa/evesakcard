@@ -12,8 +12,30 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Supabase JS Library -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2.21.0/dist/umd/supabase.min.js"></script>
+    
+    <!-- Supabase JS Library - More reliable CDN with fixed version -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+    
+    <!-- Fallback script in case the CDN fails -->
+    <script>
+        // Check if Supabase loaded correctly
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!window.supabase) {
+                console.warn('Supabase not loaded from CDN, trying fallback...');
+                var fallbackScript = document.createElement('script');
+                fallbackScript.src = 'https://unpkg.com/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js';
+                fallbackScript.onload = function() {
+                    console.log('Supabase loaded from fallback CDN');
+                    // Force reinitialize Supabase when script loads
+                    if (typeof initSupabase === 'function') {
+                        initSupabase();
+                    }
+                };
+                document.head.appendChild(fallbackScript);
+            }
+        });
+    </script>
+    
     <!-- Canvas recorder library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-capture@1.2.0/dist/canvas-capture.min.js"></script>
 </head>

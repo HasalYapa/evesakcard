@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Advanced Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #8e44ad;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .card h2 {
+            color: #8e44ad;
+            margin-top: 0;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+        }
+        button:hover {
+            background: #9b59b6;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #f1f1f1;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: #8e44ad;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+    <!-- Supabase JS Library - Use the complete CDN URL with absolute version -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Supabase Advanced Test Tool</h1>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="connection">Connection Test</div>
+        <div class="tab" data-tab="crud">CRUD Operations</div>
+        <div class="tab" data-tab="debug">Debug Info</div>
+        <div class="tab" data-tab="setup">Setup Help</div>
+    </div>
+    
+    <div class="tab-content active" data-tab="connection">
+        <div class="card">
+            <h2>Connection Test</h2>
+            <p>Test if your Supabase connection is working properly.</p>
+            <button id="test-connection">Test Connection</button>
+            <button id="check-table">Check Table</button>
+            <button id="check-policies">Check RLS Policies</button>
+            <div id="connection-result" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="tab-content" data-tab="crud">
+        <div class="card">
+            <h2>Create Test Card</h2>
+            <div class="form-group">
+                <label for="recipient">Recipient:</label>
+                <input type="text" id="recipient" value="Test Recipient" style="width: 100%; padding: 8px; margin: 5px 0 15px;">
+                <label for="message">Message:</label>
+                <textarea id="message" style="width: 100%; padding: 8px; margin: 5px 0 15px; height: 100px;">This is a test message for the Vesak card.</textarea>
+                <label for="theme">Theme:</label>
+                <select id="theme" style="width: 100%; padding: 8px; margin: 5px 0 15px;">
+                    <option value="gold">Gold</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                </select>
+            </div>
+            <button id="create-card">Create Test Card</button>
+            <div id="create-result" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Retrieve Card</h2>
+            <div class="form-group">
+                <label for="card-id">Card ID:</label>
+                <input type="text" id="card-id" placeholder="Enter card ID" style="width: 100%; padding: 8px; margin: 5px 0 15px;">
+            </div>
+            <button id="retrieve-card">Retrieve Card</button>
+            <div id="retrieve-result" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>List Recent Cards</h2>
+            <button id="list-cards">List Recent Cards</button>
+            <div id="list-result" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="tab-content" data-tab="debug">
+        <div class="card">
+            <h2>Supabase Configuration</h2>
+            <pre id="config-info"></pre>
+            
+            <h2>Browser Information</h2>
+            <pre id="browser-info"></pre>
+            
+            <h2>Console Log</h2>
+            <pre id="console-log"></pre>
+            
+            <button id="clear-logs">Clear Logs</button>
+            <button id="copy-debug">Copy Debug Info</button>
+        </div>
+    </div>
+    
+    <div class="tab-content" data-tab="setup">
+        <div class="card">
+            <h2>Supabase Setup Instructions</h2>
+            <p>Follow these steps to properly set up Supabase for the Vesak Card Application:</p>
+            
+            <h3>1. Create Table Schema</h3>
+            <p>Run the following SQL in your Supabase SQL Editor:</p>
+            <pre>CREATE TABLE IF NOT EXISTS vesak_cards (
+  id BIGSERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  card_id TEXT NOT NULL UNIQUE,
+  recipient TEXT,
+  message TEXT,
+  theme TEXT DEFAULT 'gold'
+);
+
+-- Enable Row Level Security
+ALTER TABLE vesak_cards ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for public access
+CREATE POLICY "Allow public select"
+  ON vesak_cards
+  FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow public insert"
+  ON vesak_cards
+  FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public update"
+  ON vesak_cards
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);</pre>
+
+            <h3>2. Check Your Connection Details</h3>
+            <p>Make sure your config.js contains the correct URL and anon key:</p>
+            <pre>// In config.js
+const SUPABASE_URL = 'https://your-project-id.supabase.co';
+const SUPABASE_ANON_KEY = 'your-anon-key';</pre>
+            <p>You can find these values in your Supabase dashboard under "Settings" > "API".</p>
+
+            <h3>3. Common Issues and Solutions</h3>
+            <ul>
+                <li><strong>CORS errors:</strong> Make sure your domain is added to the allowed origins in Supabase dashboard > Settings > API > CORS.</li>
+                <li><strong>RLS errors:</strong> Ensure Row Level Security policies are configured correctly.</li>
+                <li><strong>Script loading errors:</strong> Check if the Supabase library is loading correctly in the browser.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpc2lscnRqZHJzY3hyeWx0a3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NzY1NzYsImV4cCI6MjA2MjQ1MjU3Nn0.8Z3FyDF_y81SxaeFXcP8qWLBhHpHkpJs6aOS6NpdNkY';
+        
+        // For debugging
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        const consoleLogEl = document.getElementById('console-log');
+        const logMessages = [];
+        
+        // Override console methods to capture logs
+        console.log = function() {
+            originalConsoleLog.apply(console, arguments);
+            const message = Array.from(arguments).map(arg => {
+                return typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg;
+            }).join(' ');
+            logMessages.push(`[LOG] ${message}`);
+            updateConsoleLog();
+        };
+        
+        console.error = function() {
+            originalConsoleError.apply(console, arguments);
+            const message = Array.from(arguments).map(arg => {
+                return typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg;
+            }).join(' ');
+            logMessages.push(`[ERROR] ${message}`);
+            updateConsoleLog();
+        };
+        
+        console.warn = function() {
+            originalConsoleWarn.apply(console, arguments);
+            const message = Array.from(arguments).map(arg => {
+                return typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg;
+            }).join(' ');
+            logMessages.push(`[WARN] ${message}`);
+            updateConsoleLog();
+        };
+        
+        function updateConsoleLog() {
+            if (consoleLogEl) {
+                consoleLogEl.textContent = logMessages.slice(-20).join('\n');
+            }
+        }
+        
+        // Initialize Supabase client with a more robust approach
+        let supabase;
+        try {
+            // Check if supabase is available in the window object
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized via window.supabase');
+            } 
+            // Fall back to global createClient function if available
+            else if (typeof createClient === 'function') {
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized via createClient');
+            }
+            // Check for the newer module format
+            else if (window.supabaseJs && window.supabaseJs.createClient) {
+                supabase = window.supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized via supabaseJs.createClient');
+            }
+            else {
+                console.error('Supabase client not found in window object. Trying alternative approach...');
+                
+                // Create a fallback initialization using a dynamic script
+                const script = document.createElement('script');
+                script.innerHTML = `
+                    var supabase = null;
+                    
+                    function initSupabaseClient() {
+                        if (window.supabase) {
+                            supabase = window.supabase.createClient(
+                                "${SUPABASE_URL}", 
+                                "${SUPABASE_ANON_KEY}"
+                            );
+                            console.log('Supabase initialized via delayed initialization');
+                            document.dispatchEvent(new Event('supabaseInitialized'));
+                        } else {
+                            console.error('Failed to initialize Supabase client after script load');
+                        }
+                    }
+                    
+                    // Try initializing after a small delay
+                    setTimeout(initSupabaseClient, 500);
+                `;
+                document.head.appendChild(script);
+                
+                // Listen for the initialization event
+                document.addEventListener('supabaseInitialized', function() {
+                    supabase = window.supabase;
+                    updateConfigInfo();
+                    document.getElementById('test-connection').click();
+                });
+            }
+        } catch (err) {
+            console.error('Failed to initialize Supabase client:', err.message);
+        }
+        
+        // Show configuration info
+        function updateConfigInfo() {
+            document.getElementById('config-info').textContent = 
+                `Supabase URL: ${SUPABASE_URL}\n` +
+                `Anon Key: ${SUPABASE_ANON_KEY.substring(0, 10)}...${SUPABASE_ANON_KEY.substring(SUPABASE_ANON_KEY.length - 5)}\n` +
+                `Client Initialized: ${supabase ? 'Yes' : 'No'}`;
+        }
+        
+        // Initial update
+        updateConfigInfo();
+        
+        // Show browser info
+        document.getElementById('browser-info').textContent = 
+            `User Agent: ${navigator.userAgent}\n` +
+            `Platform: ${navigator.platform}\n` +
+            `Languages: ${navigator.languages.join(', ')}\n` +
+            `Online: ${navigator.onLine ? 'Yes' : 'No'}`;
+        
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Hide all tabs and content, then show active
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.querySelector(`.tab-content[data-tab="${tabId}"]`).classList.add('active');
+            });
+        });
+        
+        // Connection test
+        document.getElementById('test-connection').addEventListener('click', async function() {
+            const resultEl = document.getElementById('connection-result');
+            resultEl.innerHTML = "<p>Testing connection...</p>";
+            
+            try {
+                if (!supabase) {
+                    throw new Error("Supabase client not initialized");
+                }
+                
+                const { data, error } = await supabase.from('vesak_cards').select('count').limit(1);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultEl.innerHTML = `
+                    <p class="success">✓ Connection successful!</p>
+                    <p>Supabase is properly configured and responding.</p>
+                `;
+            } catch (err) {
+                console.error('Connection test error:', err);
+                resultEl.innerHTML = `
+                    <p class="error">✗ Connection failed</p>
+                    <p>Error: ${err.message || err}</p>
+                    <p>Check your Supabase URL and Anon Key in config.js</p>
+                `;
+            }
+        });
+        
+        // Check if table exists
+        document.getElementById('check-table').addEventListener('click', async function() {
+            const resultEl = document.getElementById('connection-result');
+            resultEl.innerHTML = "<p>Checking table structure...</p>";
+            
+            try {
+                if (!supabase) {
+                    throw new Error("Supabase client not initialized");
+                }
+                
+                // First see if we can select from the table
+                const { data, error } = await supabase.rpc('get_table_definition', { table_name: 'vesak_cards' });
+                
+                if (error) {
+                    if (error.code === '42883') { // function doesn't exist
+                        // Try a direct check
+                        const { data: tableData, error: tableError } = await supabase
+                            .from('vesak_cards')
+                            .select('id')
+                            .limit(1);
+                            
+                        if (tableError) {
+                            throw tableError;
+                        }
+                        
+                        resultEl.innerHTML = `
+                            <p class="success">✓ Table exists!</p>
+                            <p>The vesak_cards table exists in your database.</p>
+                            <p>Could not check structure (get_table_definition function is missing).</p>
+                        `;
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    resultEl.innerHTML = `
+                        <p class="success">✓ Table exists!</p>
+                        <p>The vesak_cards table exists in your database.</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (err) {
+                console.error('Table check error:', err);
+                
+                if (err.code === '42P01') { // table doesn't exist
+                    resultEl.innerHTML = `
+                        <p class="error">✗ Table missing</p>
+                        <p>The "vesak_cards" table does not exist in your database.</p>
+                        <p>Go to the Setup tab to get the SQL to create it.</p>
+                    `;
+                } else {
+                    resultEl.innerHTML = `
+                        <p class="error">✗ Check failed</p>
+                        <p>Error: ${err.message || err}</p>
+                        <p>Code: ${err.code || 'unknown'}</p>
+                    `;
+                }
+            }
+        });
+        
+        // Check RLS policies
+        document.getElementById('check-policies').addEventListener('click', async function() {
+            const resultEl = document.getElementById('connection-result');
+            resultEl.innerHTML = "<p>Checking RLS policies...</p>";
+            
+            try {
+                if (!supabase) {
+                    throw new Error("Supabase client not initialized");
+                }
+                
+                // Try to get RLS policies
+                const { data, error } = await supabase.rpc('get_policies', { table_name: 'vesak_cards' });
+                
+                if (error) {
+                    if (error.code === '42883') { // function doesn't exist
+                        // Try inserting a test record to check if RLS blocks it
+                        const testId = `test-${Date.now()}`;
+                        const { data: insertData, error: insertError } = await supabase
+                            .from('vesak_cards')
+                            .insert({
+                                card_id: testId,
+                                recipient: 'RLS Test',
+                                message: 'Testing Row Level Security',
+                                theme: 'gold'
+                            })
+                            .select();
+                        
+                        if (insertError) {
+                            if (insertError.code === '42501') { // permission denied
+                                resultEl.innerHTML = `
+                                    <p class="error">✗ RLS blocking inserts</p>
+                                    <p>Row Level Security is enabled but blocking inserts.</p>
+                                    <p>Go to the Setup tab to get the SQL to configure RLS.</p>
+                                `;
+                            } else {
+                                throw insertError;
+                            }
+                        } else {
+                            resultEl.innerHTML = `
+                                <p class="success">✓ RLS seems to be configured correctly!</p>
+                                <p>Successfully inserted a test record.</p>
+                                <p>Created test card with ID: ${testId}</p>
+                            `;
+                        }
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    resultEl.innerHTML = `
+                        <p class="success">✓ RLS policies found!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (err) {
+                console.error('Policy check error:', err);
+                resultEl.innerHTML = `
+                    <p class="error">✗ Check failed</p>
+                    <p>Error: ${err.message || err}</p>
+                    <p>Code: ${err.code || 'unknown'}</p>
+                `;
+            }
+        });
+        
+        // Create test card
+        document.getElementById('create-card').addEventListener('click', async function() {
+            const resultEl = document.getElementById('create-result');
+            resultEl.innerHTML = "<p>Creating test card...</p>";
+            
+            try {
+                if (!supabase) {
+                    throw new Error("Supabase client not initialized");
+                }
+                
+                const recipient = document.getElementById('recipient').value;
+                const message = document.getElementById('message').value;
+                const theme = document.getElementById('theme').value;
+                
+                const cardId = `test-${Date.now()}`;
+                
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .insert({
+                        card_id: cardId,
+                        recipient: recipient,
+                        message: message,
+                        theme: theme
+                    })
+                    .select();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultEl.innerHTML = `
+                    <p class="success">✓ Card created successfully!</p>
+                    <p>Card ID: ${cardId}</p>
+                    <p>Use this ID to retrieve the card.</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <button onclick="copyToClipboard('${cardId}')">Copy Card ID</button>
+                `;
+                
+                // Update the card ID field for easy retrieval
+                document.getElementById('card-id').value = cardId;
+            } catch (err) {
+                console.error('Create card error:', err);
+                resultEl.innerHTML = `
+                    <p class="error">✗ Failed to create card</p>
+                    <p>Error: ${err.message || err}</p>
+                    <p>Code: ${err.code || 'unknown'}</p>
+                `;
+            }
+        });
+        
+        // Retrieve card
+        document.getElementById('retrieve-card').addEventListener('click', async function() {
+            const resultEl = document.getElementById('retrieve-result');
+            const cardId = document.getElementById('card-id').value.trim();
+            
+            if (!cardId) {
+                resultEl.innerHTML = `
+                    <p class="error">Please enter a card ID</p>
+                `;
+                return;
+            }
+            
+            resultEl.innerHTML = "<p>Retrieving card...</p>";
+            
+            try {
+                if (!supabase) {
+                    throw new Error("Supabase client not initialized");
+                }
+                
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .eq('card_id', cardId)
+                    .single();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                if (!data) {
+                    resultEl.innerHTML = `
+                        <p class="error">✗ Card not found</p>
+                        <p>No card exists with ID: ${cardId}</p>
+                    `;
+                    return;
+                }
+                
+                resultEl.innerHTML = `
+                    <p class="success">✓ Card retrieved successfully!</p>
+                    <div style="padding: 20px; border: 1px dashed #8e44ad; margin: 15px 0; border-radius: 8px;">
+                        <p><strong>To:</strong> ${data.recipient || 'Friend'}</p>
+                        <p style="margin: 15px 0; font-style: italic;">${data.message || 'No message'}</p>
+                        <p><strong>Theme:</strong> ${data.theme || 'gold'}</p>
+                        <p><strong>Created:</strong> ${new Date(data.created_at).toLocaleString()}</p>
+                    </div>
+                    <p>Test link: <a href="index.html?card=${cardId}" target="_blank">Open card in app</a></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (err) {
+                console.error('Retrieve card error:', err);
+                resultEl.innerHTML = `
+                    <p class="error">✗ Failed to retrieve card</p>
+                    <p>Error: ${err.message || err}</p>
+                    <p>Code: ${err.code || 'unknown'}</p>
+                `;
+            }
+        });
+        
+        // List recent cards
+        document.getElementById('list-cards').addEventListener('click', async function() {
+            const resultEl = document.getElementById('list-result');
+            resultEl.innerHTML = "<p>Listing recent cards...</p>";
+            
+            try {
+                if (!supabase) {
+                    throw new Error("Supabase client not initialized");
+                }
+                
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                if (!data || data.length === 0) {
+                    resultEl.innerHTML = `
+                        <p>No cards found in the database.</p>
+                        <p>Create a test card first.</p>
+                    `;
+                    return;
+                }
+                
+                let cardsList = `
+                    <p class="success">✓ Found ${data.length} cards</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                        <tr style="background: #f1f1f1;">
+                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Card ID</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Recipient</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Theme</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Created</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Actions</th>
+                        </tr>
+                `;
+                
+                data.forEach(card => {
+                    cardsList += `
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${card.card_id}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${card.recipient || 'Friend'}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${card.theme || 'gold'}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${new Date(card.created_at).toLocaleString()}</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">
+                                <button onclick="loadCard('${card.card_id}')">Load</button>
+                                <a href="index.html?card=${card.card_id}" target="_blank" style="display: inline-block; padding: 5px 10px; background: #3498db; color: white; text-decoration: none; border-radius: 3px; margin-left: 5px;">Open</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                cardsList += `</table>`;
+                
+                resultEl.innerHTML = cardsList;
+            } catch (err) {
+                console.error('List cards error:', err);
+                resultEl.innerHTML = `
+                    <p class="error">✗ Failed to list cards</p>
+                    <p>Error: ${err.message || err}</p>
+                    <p>Code: ${err.code || 'unknown'}</p>
+                `;
+            }
+        });
+        
+        // Helper function to load a card ID into the retrieve form
+        function loadCard(cardId) {
+            document.getElementById('card-id').value = cardId;
+            
+            // Switch to the retrieve tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector('.tab[data-tab="crud"]').classList.add('active');
+            document.querySelector('.tab-content[data-tab="crud"]').classList.add('active');
+            
+            // Scroll to the retrieve section
+            document.getElementById('retrieve-card').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard: ' + text);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+        
+        // Clear logs
+        document.getElementById('clear-logs').addEventListener('click', function() {
+            logMessages.length = 0;
+            updateConsoleLog();
+        });
+        
+        // Copy debug info
+        document.getElementById('copy-debug').addEventListener('click', function() {
+            const debugInfo = 
+                `SUPABASE DEBUG INFO\n` +
+                `------------------\n` +
+                `Time: ${new Date().toISOString()}\n\n` +
+                `CONFIGURATION\n` +
+                document.getElementById('config-info').textContent + '\n\n' +
+                `BROWSER INFO\n` +
+                document.getElementById('browser-info').textContent + '\n\n' +
+                `CONSOLE LOG\n` +
+                logMessages.join('\n');
+                
+            navigator.clipboard.writeText(debugInfo).then(() => {
+                alert('Debug info copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy debug info: ', err);
+            });
+        });
+        
+        // Automatically run connection test on load
+        window.addEventListener('load', function() {
+            document.getElementById('test-connection').click();
+        });
+    </script>
+</body>
+</html> 
