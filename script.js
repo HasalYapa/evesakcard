@@ -254,28 +254,11 @@ function createShareModal() {
     socialSection.appendChild(socialLabel);
     socialSection.appendChild(socialButtons);
     
-    // Create download section
-    const downloadSection = document.createElement('div');
-    downloadSection.className = 'download-section';
-    
-    const downloadLabel = document.createElement('p');
-    downloadLabel.textContent = 'Download options:';
-    
-    // Animation download button
-    const downloadAnimationBtn = document.createElement('button');
-    downloadAnimationBtn.className = 'download-btn animation-btn';
-    downloadAnimationBtn.innerHTML = '<i class="fas fa-play-circle"></i> Download Animation';
-    downloadAnimationBtn.onclick = createCardVideo;
-    
-    downloadSection.appendChild(downloadLabel);
-    downloadSection.appendChild(downloadAnimationBtn);
-    
     // Assemble modal
     modalContent.appendChild(closeBtn);
     modalContent.appendChild(header);
     modalContent.appendChild(linkSection);
     modalContent.appendChild(socialSection);
-    modalContent.appendChild(downloadSection);
     
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
@@ -332,7 +315,7 @@ function addModalStyles() {
             color: #000;
         }
         
-        .link-section, .social-section, .download-section {
+        .link-section, .social-section {
             margin: 20px 0;
         }
         
@@ -395,76 +378,6 @@ function addModalStyles() {
         
         .email {
             background-color: #D44638;
-        }
-        
-        .download-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .download-btn {
-            width: 100%;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-            background-color: #8e44ad;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        
-        .download-btn:hover {
-            background-color: #9b59b6;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-        
-        .animation-btn {
-            background: linear-gradient(135deg, #8e44ad, #3498db);
-        }
-        
-        .animation-btn:hover {
-            background: linear-gradient(135deg, #9b59b6, #2980b9);
-        }
-        
-        .recording-indicator {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            font-weight: bold;
-        }
-        
-        .recording-dot {
-            width: 15px;
-            height: 15px;
-            background-color: #e74c3c;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
         }
     `;
     document.head.appendChild(style);
