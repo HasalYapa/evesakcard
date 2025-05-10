@@ -94,6 +94,11 @@
         </div>
         
         <div class="form-group">
+            <label for="sender">Sender Name:</label>
+            <input type="text" id="sender" value="Test Sender">
+        </div>
+        
+        <div class="form-group">
             <label for="message">Message:</label>
             <textarea id="message">This is a special test card created with a specific ID. May you be blessed with peace and happiness on Vesak Day.</textarea>
         </div>
@@ -141,6 +146,7 @@
                 // Get form values
                 const cardId = document.getElementById('card-id').value.trim();
                 const recipient = document.getElementById('recipient').value.trim();
+                const sender = document.getElementById('sender').value.trim();
                 const message = document.getElementById('message').value.trim();
                 const theme = document.getElementById('theme').value;
                 
@@ -185,6 +191,7 @@
                     .insert({
                         card_id: cardId,
                         recipient: recipient,
+                        sender: sender,
                         message: message,
                         theme: theme
                     })

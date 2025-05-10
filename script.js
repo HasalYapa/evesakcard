@@ -38,11 +38,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Update personal message
         const recipient = recipientInput.value.trim();
         const message = messageInput.value.trim();
+        const senderName = document.getElementById('sender-name').value.trim();
         
         if (recipient || message) {
             personalMessageDiv.style.display = 'block';
             recipientDisplay.textContent = recipient || 'Friend';
             messageDisplay.textContent = message || 'Wishing you peace and joy on this Vesak Day.';
+            document.getElementById('sender-display').textContent = senderName || 'You';
         }
         
         // Add a small animation to show changes were applied
@@ -491,7 +493,8 @@ async function saveCardData() {
     const cardData = {
         recipient: document.getElementById('recipient').value,
         message: document.getElementById('message').value,
-        theme: document.getElementById('theme').value
+        theme: document.getElementById('theme').value,
+        sender: document.getElementById('sender-name') ? document.getElementById('sender-name').value : 'You'
     };
     
     // Save card data to localStorage
@@ -516,6 +519,7 @@ async function saveCardData() {
                     recipient: cardData.recipient,
                     message: cardData.message,
                     theme: cardData.theme,
+                    sender: cardData.sender,
                     created_at: new Date()
                 })
                 .select();
@@ -551,6 +555,11 @@ function loadCardData() {
         document.getElementById('message').value = cardData.message || '';
         document.getElementById('theme').value = cardData.theme || 'gold';
         
+        // Set sender name if available
+        if (document.getElementById('sender-name')) {
+            document.getElementById('sender-name').value = cardData.sender || '';
+        }
+        
         // Apply theme
         document.body.className = '';
         if (cardData.theme) {
@@ -562,10 +571,16 @@ function loadCardData() {
             const personalMessageDiv = document.getElementById('personal-message-display');
             const recipientDisplay = document.getElementById('recipient-display');
             const messageDisplay = document.getElementById('message-display');
+            const senderDisplay = document.getElementById('sender-display');
             
             personalMessageDiv.style.display = 'block';
             recipientDisplay.textContent = cardData.recipient || 'Friend';
             messageDisplay.textContent = cardData.message || 'Wishing you peace and joy on this Vesak Day.';
+            
+            // Update sender display
+            if (senderDisplay) {
+                senderDisplay.textContent = cardData.sender || 'You';
+            }
         }
     }
 }
@@ -629,7 +644,8 @@ async function checkForSharedCard() {
                     loadSharedCardData({
                         recipient: data[0].recipient,
                         message: data[0].message,
-                        theme: data[0].theme
+                        theme: data[0].theme,
+                        sender: data[0].sender
                     });
                 } else {
                     console.log('No data found for card ID:', cardId);
@@ -679,7 +695,8 @@ function loadSharedCardData(cardData) {
     const originalCardData = {
         recipient: cardData.recipient || '',
         message: cardData.message || '',
-        theme: cardData.theme || 'gold'
+        theme: cardData.theme || 'gold',
+        sender: cardData.sender || 'Anonymous' // Store sender name if available
     };
     
     // Create variable to track if we're viewing original or creating new
@@ -690,6 +707,7 @@ function loadSharedCardData(cardData) {
         const personalMessageDiv = document.getElementById('personal-message-display');
         const recipientDisplay = document.getElementById('recipient-display');
         const messageDisplay = document.getElementById('message-display');
+        const senderDisplay = document.getElementById('sender-display');
         const sharedCardActions = document.getElementById('shared-card-actions');
         const customizeSection = document.querySelector('.customize-section');
         
@@ -697,6 +715,13 @@ function loadSharedCardData(cardData) {
         personalMessageDiv.style.display = 'block';
         recipientDisplay.textContent = cardData.recipient || 'Friend';
         messageDisplay.textContent = cardData.message || 'Wishing you peace and joy on this Vesak Day.';
+        
+        // Display the sender name if available
+        if (cardData.sender) {
+            senderDisplay.textContent = cardData.sender;
+        } else {
+            senderDisplay.textContent = 'Anonymous'; // Default if sender name not provided
+        }
         
         // Show action buttons
         sharedCardActions.style.display = 'flex';
@@ -767,6 +792,9 @@ function loadSharedCardData(cardData) {
                 
                 // Show the personal message with new content
                 personalMessageDiv.style.display = 'block';
+                
+                // Reset sender to "You" for the new card
+                senderDisplay.textContent = "You";
             }
         });
     }
@@ -919,6 +947,7 @@ function captureAndDownloadCard() {
     const recipient = document.getElementById('recipient').value.trim() || 'Friend';
     const message = document.getElementById('message').value.trim() || 'Wishing you peace and joy on this Vesak Day.';
     const theme = document.getElementById('theme').value || 'gold';
+    const sender = document.getElementById('sender-display').textContent || 'You';
     
     // Create a completely new card element specifically for capturing
     const captureContainer = document.createElement('div');
@@ -973,7 +1002,7 @@ function captureAndDownloadCard() {
                     ${message}
                 </p>
                 <p class="from" style="font-weight: bold; color: var(--primary-color);">
-                    From: <span>You</span>
+                    From: <span>${sender}</span>
                 </p>
             </div>
         </div>
@@ -1064,6 +1093,7 @@ function createCardVideo() {
     const recipient = document.getElementById('recipient').value.trim() || 'Friend';
     const message = document.getElementById('message').value.trim() || 'Wishing you peace and joy on this Vesak Day.';
     const theme = document.getElementById('theme').value || 'gold';
+    const sender = document.getElementById('sender-display').textContent || 'You';
     
     // Create animation container (hidden from view)
     const animationContainer = document.createElement('div');
@@ -1143,7 +1173,7 @@ function createCardVideo() {
         <div style="width: 90%; max-width: 450px; margin: 15px auto; padding: 20px; background: rgba(255, 255, 255, 0.8); border-radius: 10px; border: 1px dashed var(--primary-color);">
             <p style="font-weight: bold; color: var(--primary-color);">To: <span>${recipient}</span></p>
             <p style="font-style: italic; margin: 15px 0;">${message}</p>
-            <p style="font-weight: bold; color: var(--primary-color);">From: <span>You</span></p>
+            <p style="font-weight: bold; color: var(--primary-color);">From: <span>${sender}</span></p>
         </div>
     `;
     
@@ -1247,11 +1277,11 @@ function createCardVideo() {
     document.body.appendChild(animationContainer);
     
     // Create video quickly without frame-by-frame rendering
-    createFastVideo(animatedCard, animationContainer, indicator, recipient, message, theme);
+    createFastVideo(animatedCard, animationContainer, indicator, recipient, message, theme, sender);
 }
 
 // Function to create video quickly without frame-by-frame rendering
-function createFastVideo(animatedCard, container, indicator, recipient, message, theme) {
+function createFastVideo(animatedCard, container, indicator, recipient, message, theme, sender) {
     // Check for WebM and MediaRecorder support
     if (typeof MediaRecorder === 'undefined') {
         alert('Your browser does not support the MediaRecorder API. Please try a different browser like Chrome or Firefox.');
@@ -1341,7 +1371,7 @@ function createFastVideo(animatedCard, container, indicator, recipient, message,
             const rotation = rotations[frameIndex];
             
             // Render the card
-            renderCard(canvas, ctx, rotation, recipient, message, theme);
+            renderCard(canvas, ctx, rotation, recipient, message, theme, sender);
             
             // Add frame to GIF
             gif.addFrame(canvas, {copy: true, delay: 100});
@@ -1376,7 +1406,7 @@ function loadGifWorker(callback) {
 }
 
 // Function to render the card to a canvas
-function renderCard(canvas, ctx, rotation, recipient, message, theme) {
+function renderCard(canvas, ctx, rotation, recipient, message, theme, sender) {
     // Use a more direct approach for rendering
     ctx.fillStyle = '#8e44ad';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1466,7 +1496,7 @@ function renderCard(canvas, ctx, rotation, recipient, message, theme) {
         if (y <= msgBoxY + 160) {
             ctx.fillText(line, canvas.width/2, y);
             ctx.font = 'bold 24px Arial';
-            ctx.fillText('From: You', canvas.width/2, msgBoxY + 160);
+            ctx.fillText(`From: ${sender || 'You'}`, canvas.width/2, msgBoxY + 160);
         }
     }
     
