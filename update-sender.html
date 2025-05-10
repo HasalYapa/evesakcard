@@ -52,6 +52,7 @@
             font-size: 16px;
             width: 100%;
             transition: background-color 0.3s;
+            min-height: 44px; /* Better for touch targets */
         }
         button:hover {
             background: #9b59b6;
@@ -108,6 +109,32 @@
         }
         .back-btn:hover {
             text-decoration: underline;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .card {
+                padding: 15px;
+                margin: 10px 0;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            .preview-card {
+                padding: 15px;
+            }
+            .success, .error {
+                padding: 12px;
+            }
+            button {
+                min-height: 44px;
+            }
         }
     </style>
     <!-- Supabase JS Library -->

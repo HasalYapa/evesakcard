@@ -358,6 +358,29 @@ footer i {
     .customize-section, .personal-message {
         max-width: 100%;
     }
+    
+    .social-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    body {
+        padding: 10px;
+    }
+    
+    #shared-card-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -387,6 +410,64 @@ footer i {
     .candle {
         width: 30px;
         height: 80px;
+    }
+    
+    .container {
+        padding: 0;
+        margin: 10px auto;
+    }
+    
+    .card-front, .card-back {
+        padding: 15px;
+    }
+    
+    input, textarea, select, button {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Improve tap targets */
+    button, 
+    .action-btn,
+    .social-btn,
+    #apply-btn,
+    #share-btn {
+        min-height: 44px;
+        padding: 12px 15px;
+    }
+    
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    /* Better form layout on mobile */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    body {
+        background-attachment: scroll; /* Better performance on mobile */
+    }
+}
+
+@media (max-width: 360px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .card {
+        height: 430px;
+    }
+    
+    .lotus-container {
+        width: 100px;
+        height: 100px;
+        margin: 20px auto;
+    }
+    
+    /* Reduce padding further for smallest screens */
+    .card-front, .card-back {
+        padding: 10px;
     }
 }
 

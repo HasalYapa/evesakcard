@@ -44,6 +44,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 5px 5px 5px 0;
+            min-height: 44px; /* Better for touch targets */
         }
         button:hover {
             background: #9b59b6;
@@ -59,6 +60,7 @@
         .tabs {
             display: flex;
             margin-bottom: 20px;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
         }
         .tab {
             padding: 10px 20px;
@@ -66,6 +68,7 @@
             cursor: pointer;
             border-radius: 5px 5px 0 0;
             margin-right: 5px;
+            margin-bottom: 5px; /* Space between wrapped tabs */
         }
         .tab.active {
             background: #8e44ad;
@@ -76,6 +79,50 @@
         }
         .tab-content.active {
             display: block;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .card {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .tabs {
+                flex-direction: column;
+                width: 100%;
+            }
+            .tab {
+                width: 100%;
+                margin-right: 0;
+                border-radius: 5px;
+                text-align: center;
+            }
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            input, select, textarea {
+                width: 100%;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .card {
+                padding: 12px;
+                margin: 10px 0;
+            }
+            pre {
+                font-size: 12px;
+            }
         }
     </style>
     <!-- Supabase JS Library - Use the complete CDN URL with absolute version -->
