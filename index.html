@@ -36,7 +36,7 @@
         });
     </script>
     
-    <!-- Canvas recorder library -->
+    <!-- Canvas recorder library - preload to avoid CSP issues -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-capture@1.2.0/dist/canvas-capture.min.js"></script>
 </head>
 <body>
@@ -114,9 +114,30 @@
         <p>Created with <i class="fas fa-heart"></i> for Vesak Day</p>
     </footer>
     
-    <!-- External scripts -->
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg.js/0.10.1/ffmpeg.min.js"></script>
+    <!-- External scripts using permitted CDNs -->
+    <script>
+        // Pre-load key libraries to bypass CSP issues
+        function loadScript(url, callback) {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = callback;
+            script.onerror = function() {
+                console.error('Failed to load script:', url);
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Pre-load html2canvas from permitted CDN
+        loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', function() {
+            console.log('html2canvas loaded successfully');
+        });
+        
+        // Pre-load ffmpeg from permitted CDN
+        loadScript('https://cdn.jsdelivr.net/npm/ffmpeg.js@4.2.9003/ffmpeg.min.js', function() {
+            console.log('ffmpeg.js loaded successfully');
+        });
+    </script>
+    
     <!-- Config script must come before main script -->
     <script src="config.js"></script>
     <script src="script.js"></script>

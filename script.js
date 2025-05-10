@@ -603,11 +603,12 @@ async function checkForSharedCard() {
                 customizeSection.insertBefore(loadingNotice, customizeSection.firstChild);
                 
                 console.log('Fetching card with ID:', cardId);
+                
+                // Modified query to avoid 406 error - don't use single() which can cause the 406 error
                 const { data, error } = await supabase
                     .from('vesak_cards')
                     .select('*')
-                    .eq('card_id', cardId)
-                    .single();
+                    .eq('card_id', cardId);
                 
                 // Remove loading notice
                 loadingNotice.remove();
@@ -622,13 +623,13 @@ async function checkForSharedCard() {
                     } else {
                         displayEmptySharedCard(true);
                     }
-                } else if (data) {
-                    console.log('Found card data:', data);
-                    // We found the card in Supabase
+                } else if (data && data.length > 0) {
+                    // We found the card in Supabase - use the first match
+                    console.log('Found card data:', data[0]);
                     loadSharedCardData({
-                        recipient: data.recipient,
-                        message: data.message,
-                        theme: data.theme
+                        recipient: data[0].recipient,
+                        message: data[0].message,
+                        theme: data[0].theme
                     });
                 } else {
                     console.log('No data found for card ID:', cardId);
@@ -1013,8 +1014,26 @@ function loadHtml2Canvas(callback) {
     if (typeof html2canvas !== 'undefined') return;
     
     const script = document.createElement('script');
-    script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
-    script.onload = callback;
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    script.onload = function() {
+        console.log('html2canvas loaded successfully from direct call');
+        if (callback) callback();
+    };
+    script.onerror = function() {
+        console.error('Failed to load html2canvas, trying alternative source');
+        // Try alternative CDN if main one failed
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = 'https://cdn.jsdelivr.net/gh/niklasvh/html2canvas/dist/html2canvas.min.js';
+        fallbackScript.onload = function() {
+            console.log('html2canvas loaded from fallback source');
+            if (callback) callback();
+        };
+        fallbackScript.onerror = function() {
+            console.error('All attempts to load html2canvas failed');
+            alert('Could not load required libraries. Please check your internet connection and try again.');
+        };
+        document.head.appendChild(fallbackScript);
+    };
     document.head.appendChild(script);
 }
 
