@@ -1,0 +1,442 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+:root {
+    --primary-color: #8e44ad;
+    --secondary-color: #f1c40f;
+    --background-color: #f8f9fa;
+    --card-color: #fff;
+    --text-color: #333;
+    --accent-color: #3498db;
+}
+
+body {
+    background-color: var(--background-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-image: url('https://images.unsplash.com/photo-1583120017330-a1641c779f5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    perspective: 1500px;
+    margin: 20px auto;
+}
+
+.card {
+    width: 100%;
+    height: 600px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s;
+    z-index: 1;
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s;
+}
+
+.card:hover .card-inner,
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    z-index: auto;
+}
+
+.card-front {
+    background: linear-gradient(135deg, var(--primary-color), #9b59b6);
+    color: white;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    color: var(--text-color);
+    transform: rotateY(180deg);
+    overflow-y: auto;
+}
+
+h1 {
+    font-size: 3rem;
+    margin: 0.5em 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin: 0.5em 0;
+    color: var(--primary-color);
+}
+
+p {
+    margin: 0.8em 0;
+    line-height: 1.6;
+}
+
+/* Lotus Flower Animation */
+.lotus-container {
+    width: 200px;
+    height: 200px;
+    margin: 30px auto;
+    position: relative;
+}
+
+.lotus {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    animation: rotate 20s infinite linear;
+}
+
+.petal {
+    position: absolute;
+    width: 60px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50% 50% 0 0;
+    top: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.p1 { transform: translate(-50%, -100%) rotate(0deg); }
+.p2 { transform: translate(-50%, -100%) rotate(45deg); }
+.p3 { transform: translate(-50%, -100%) rotate(90deg); }
+.p4 { transform: translate(-50%, -100%) rotate(135deg); }
+.p5 { transform: translate(-50%, -100%) rotate(180deg); }
+.p6 { transform: translate(-50%, -100%) rotate(225deg); }
+.p7 { transform: translate(-50%, -100%) rotate(270deg); }
+.p8 { transform: translate(-50%, -100%) rotate(315deg); }
+
+.center {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: var(--secondary-color);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 20px var(--secondary-color);
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Candle Animation */
+.candle-container {
+    width: 80px;
+    height: 120px;
+    margin: 20px auto;
+    position: relative;
+}
+
+.candle {
+    position: relative;
+    width: 40px;
+    height: 100px;
+    background: #fff;
+    margin: 0 auto;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.flame {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 40px;
+    background: var(--secondary-color);
+    border-radius: 50% 50% 20% 20%;
+    box-shadow: 0 0 20px var(--secondary-color), 0 0 40px var(--secondary-color);
+    animation: flicker 0.5s infinite alternate;
+}
+
+.waves {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 200, 100, 0.5);
+    border-radius: 50% 50% 20% 20%;
+    filter: blur(3px);
+}
+
+.glow {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    background: rgba(255, 255, 200, 0.8);
+    border-radius: 50% 50% 30% 30%;
+    filter: blur(2px);
+}
+
+@keyframes flicker {
+    0%, 100% {
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        transform: translateX(-52%) scale(0.98);
+    }
+}
+
+/* Form elements */
+.customize-section {
+    width: 100%;
+    max-width: 400px;
+    margin: 15px auto;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #9b59b6;
+}
+
+.quote {
+    margin: 20px 0;
+    padding: 10px;
+    border-left: 4px solid var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+}
+
+.author {
+    text-align: right;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+.personal-message {
+    width: 100%;
+    max-width: 450px;
+    margin: 15px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    border: 1px dashed var(--primary-color);
+    display: none;
+}
+
+.to, .from {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.message-text {
+    font-style: italic;
+    margin: 15px 0;
+}
+
+footer {
+    margin-top: 20px;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    width: 100%;
+}
+
+footer i {
+    color: #e74c3c;
+}
+
+/* Theme colors */
+.gold-theme {
+    --primary-color: #b8860b;
+    --secondary-color: #9b59b6;
+}
+
+.blue-theme {
+    --primary-color: #3498db;
+    --secondary-color: #ecf0f1;
+}
+
+.green-theme {
+    --primary-color: #27ae60;
+    --secondary-color: #f1c40f;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .card {
+        height: 500px;
+    }
+    
+    h1 {
+        font-size: 2.5rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .lotus-container {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .customize-section, .personal-message {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        height: 450px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .lotus-container {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .petal {
+        width: 40px;
+        height: 80px;
+    }
+    
+    .candle-container {
+        width: 60px;
+        height: 90px;
+    }
+    
+    .candle {
+        width: 30px;
+        height: 80px;
+    }
+}
+
+/* Add styles for shared card notices */
+.share-notice {
+    background-color: rgba(142, 68, 173, 0.1);
+    border-left: 4px solid var(--primary-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: var(--primary-color);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.share-notice.loading {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid #3498db;
+    color: #3498db;
+}
+
+.share-notice.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+    color: #2ecc71;
+}
+
+.share-notice.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 4px solid #e74c3c;
+    color: #e74c3c;
+}
+
+.share-notice p {
+    margin: 5px 0;
+}
+
+.share-notice a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* Add some animation for the loading state */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.share-notice.loading {
+    animation: pulse 1.5s infinite ease-in-out;
+} 

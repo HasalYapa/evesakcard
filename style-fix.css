@@ -1,0 +1,59 @@
+/* Shared card notices */
+.share-notice {
+    background-color: rgba(142, 68, 173, 0.1);
+    border-left: 4px solid var(--primary-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: var(--primary-color);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.share-notice.loading {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid #3498db;
+    color: #3498db;
+}
+
+.share-notice.success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+    color: #2ecc71;
+}
+
+.share-notice.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 4px solid #e74c3c;
+    color: #e74c3c;
+}
+
+.share-notice p {
+    margin: 5px 0;
+}
+
+.share-notice a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* Fix for z-index in shared cards */
+.card {
+    z-index: 1;
+}
+
+.card-front, .card-back {
+    z-index: auto;
+}
+
+/* Add some animation for the loading state */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.share-notice.loading {
+    animation: pulse 1.5s infinite ease-in-out;
+} 

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <div id="result" style="padding: 20px; border: 1px solid #ccc; margin-top: 20px;">Testing connection...</div>
+
+    <h2>Create Test Record</h2>
+    <button id="create-test">Create Test Record</button>
+    <div id="create-result" style="padding: 20px; border: 1px solid #ccc; margin-top: 20px;"></div>
+
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpc2lscnRqZHJzY3hyeWx0a3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NzY1NzYsImV4cCI6MjA2MjQ1MjU3Nn0.8Z3FyDF_y81SxaeFXcP8qWLBhHpHkpJs6aOS6NpdNkY';
+
+        // Initialize the Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Element references
+        const resultElem = document.getElementById('result');
+        const createBtn = document.getElementById('create-test');
+        const createResult = document.getElementById('create-result');
+        
+        // Test the connection
+        async function testConnection() {
+            try {
+                resultElem.innerHTML = "Testing connection...";
+                
+                // First check if the vesak_cards table exists
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .limit(1);
+                    
+                if (error) {
+                    console.error('Error:', error);
+                    
+                    if (error.code === '42P01') {
+                        resultElem.innerHTML = `
+                            <p style="color: red">Error: Table "vesak_cards" doesn't exist.</p>
+                            <p>You need to create the table first. Use the SQL from SUPABASE_SETUP.md</p>
+                        `;
+                    } else {
+                        resultElem.innerHTML = `
+                            <p style="color: red">Error: ${error.message}</p>
+                            <p>Code: ${error.code}</p>
+                            <p>Details: ${error.details || 'None'}</p>
+                        `;
+                    }
+                } else {
+                    resultElem.innerHTML = `
+                        <p style="color: green">Connection successful!</p>
+                        <p>Found table: vesak_cards</p>
+                        <p>Records found: ${data.length}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                resultElem.innerHTML = `
+                    <p style="color: red">Unexpected error: ${err.message}</p>
+                    <p>Check browser console for details.</p>
+                `;
+            }
+        }
+        
+        // Create a test record
+        createBtn.addEventListener('click', async function() {
+            try {
+                createResult.innerHTML = "Creating test record...";
+                
+                const testData = {
+                    card_id: 'test-' + Date.now(),
+                    recipient: 'Test Recipient',
+                    message: 'This is a test message',
+                    theme: 'gold'
+                };
+                
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .insert(testData)
+                    .select();
+                    
+                if (error) {
+                    console.error('Error creating record:', error);
+                    createResult.innerHTML = `
+                        <p style="color: red">Error creating record: ${error.message}</p>
+                        <p>Code: ${error.code}</p>
+                        <p>Details: ${error.details || 'None'}</p>
+                    `;
+                } else {
+                    createResult.innerHTML = `
+                        <p style="color: green">Test record created successfully!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    // Refresh the connection test
+                    testConnection();
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                createResult.innerHTML = `
+                    <p style="color: red">Unexpected error: ${err.message}</p>
+                    <p>Check browser console for details.</p>
+                `;
+            }
+        });
+        
+        // Run the test when page loads
+        window.onload = testConnection;
+    </script>
+</body>
+</html> 

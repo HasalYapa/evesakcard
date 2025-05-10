@@ -1,0 +1,25 @@
+[build]
+  publish = "."
+  command = "echo 'No build required'"
+
+[build.environment]
+  NODE_VERSION = "18.x"
+
+# Define URL redirects for single-page applications
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Set environment variables
+[context.production.environment]
+  SUPABASE_URL = "https://cisilrtjdrscxryltkxs.supabase.co"
+  # Note: The SUPABASE_ANON_KEY should be set in the Netlify UI for security reasons
+
+# Set headers for security and functionality
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Content-Security-Policy = "default-src 'self' https://cisilrtjdrscxryltkxs.supabase.co https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://cisilrtjdrscxryltkxs.supabase.co; font-src 'self' https://cdnjs.cloudflare.com;" 

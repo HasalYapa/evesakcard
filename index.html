@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Vesak Card</title>
+    <!-- Meta tags for social media sharing -->
+    <meta property="og:title" content="Digital Vesak Card">
+    <meta property="og:description" content="A beautiful digital Vesak card to celebrate Buddha's Day. Customize and share!">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1583120017330-a1641c779f5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Canvas recorder library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-capture@1.2.0/dist/canvas-capture.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="lotus-container">
+                        <div class="lotus">
+                            <div class="petal p1"></div>
+                            <div class="petal p2"></div>
+                            <div class="petal p3"></div>
+                            <div class="petal p4"></div>
+                            <div class="petal p5"></div>
+                            <div class="petal p6"></div>
+                            <div class="petal p7"></div>
+                            <div class="petal p8"></div>
+                            <div class="center"></div>
+                        </div>
+                    </div>
+                    <h1>Happy Vesak</h1>
+                    <p>Click to open</p>
+                </div>
+                <div class="card-back">
+                    <div class="candle-container">
+                        <div class="candle">
+                            <div class="flame">
+                                <div class="waves"></div>
+                                <div class="glow"></div>
+                            </div>
+                            <div class="wax"></div>
+                        </div>
+                    </div>
+                    <h2>May the light of Buddha's teachings</h2>
+                    <p>illuminate your path to peace and enlightenment</p>
+                    <div class="quote">
+                        <p>"Peace comes from within. Do not seek it without."</p>
+                        <p class="author">- Buddha</p>
+                    </div>
+                    <div class="customize-section">
+                        <h3>Customize Your Card</h3>
+                        <div class="form-group">
+                            <label for="recipient">Recipient's Name:</label>
+                            <input type="text" id="recipient" placeholder="Enter name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message:</label>
+                            <textarea id="message" placeholder="Enter your personal message"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="theme">Choose Theme:</label>
+                            <select id="theme">
+                                <option value="gold">Gold & Purple</option>
+                                <option value="blue">Blue & White</option>
+                                <option value="green">Green & Yellow</option>
+                            </select>
+                        </div>
+                        <button id="apply-btn">Apply</button>
+                        <button id="share-btn">Share Card</button>
+                    </div>
+                    <div class="personal-message" id="personal-message-display">
+                        <p class="to">To: <span id="recipient-display"></span></p>
+                        <p class="message-text" id="message-display"></p>
+                        <p class="from">From: <span id="sender-display">You</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>Created with <i class="fas fa-heart"></i> for Vesak Day</p>
+    </footer>
+    
+    <!-- External scripts -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg.js/0.10.1/ffmpeg.min.js"></script>
+    <!-- Config script must come before main script -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
