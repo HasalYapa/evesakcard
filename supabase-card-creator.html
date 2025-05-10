@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vesak Card Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #8e44ad;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            height: 100px;
+        }
+        button {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #9b59b6;
+        }
+        .success {
+            color: #27ae60;
+            background: #e8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+            background: #fde9e7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .link-container {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .link-container a {
+            color: #3498db;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .link-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Vesak Card Creator Tool</h1>
+    <p>Use this tool to create test cards in your Supabase database.</p>
+    
+    <div class="card">
+        <h2>Database Connection Status</h2>
+        <div id="connection-status">Checking connection...</div>
+        
+        <div id="schema-check" style="margin-top: 15px; display: none;">
+            <h3>Table Schema Check</h3>
+            <div id="schema-status">Checking table schema...</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Create a Test Card</h2>
+        <div class="form-group">
+            <label for="card-id">Card ID (will be generated if empty):</label>
+            <input type="text" id="card-id" placeholder="Leave empty for auto-generation">
+        </div>
+        
+        <div class="form-group">
+            <label for="recipient">Recipient Name:</label>
+            <input type="text" id="recipient" value="Test Recipient">
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message">This is a test message for the Vesak card. May you be blessed with peace and happiness.</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="theme">Theme:</label>
+            <select id="theme">
+                <option value="gold">Gold</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+            </select>
+        </div>
+        
+        <button id="create-btn">Create Card</button>
+        
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+    
+    <div class="card">
+        <h2>List Recent Cards</h2>
+        <button id="list-btn">Refresh List</button>
+        <div id="cards-list" style="margin-top: 15px;"></div>
+    </div>
+    
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpc2lscnRqZHJzY3hyeWx0a3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NzY1NzYsImV4cCI6MjA2MjQ1MjU3Nn0.8Z3FyDF_y81SxaeFXcP8qWLBhHpHkpJs6aOS6NpdNkY';
+        
+        // Initialize the Supabase client
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client initialized');
+        } catch (err) {
+            console.error('Failed to initialize Supabase client:', err);
+            document.getElementById('connection-status').innerHTML = `
+                <div class="error">
+                    <strong>Connection Error:</strong> Failed to initialize Supabase client.
+                    <br>Error: ${err.message}
+                </div>
+            `;
+        }
+        
+        // Test Supabase connection
+        async function testConnection() {
+            try {
+                const { data, error } = await supabase.from('vesak_cards').select('count').limit(1);
+                
+                if (error) {
+                    console.error('Connection error:', error);
+                    document.getElementById('connection-status').innerHTML = `
+                        <div class="error">
+                            <strong>Connection Error:</strong> ${error.message}
+                            <br>Code: ${error.code}
+                        </div>
+                    `;
+                } else {
+                    console.log('Connection successful');
+                    document.getElementById('connection-status').innerHTML = `
+                        <div class="success">
+                            <strong>Connection Successful!</strong> Connected to Supabase.
+                        </div>
+                    `;
+                    
+                    // Show schema check
+                    document.getElementById('schema-check').style.display = 'block';
+                    checkTableSchema();
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                document.getElementById('connection-status').innerHTML = `
+                    <div class="error">
+                        <strong>Connection Error:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Check table schema
+        async function checkTableSchema() {
+            try {
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) {
+                    console.error('Schema check error:', error);
+                    document.getElementById('schema-status').innerHTML = `
+                        <div class="error">
+                            <strong>Schema Error:</strong> ${error.message}
+                            <br>Code: ${error.code}
+                        </div>
+                    `;
+                    
+                    // Check if table doesn't exist
+                    if (error.code === '42P01') {
+                        document.getElementById('schema-status').innerHTML += `
+                            <div style="margin-top: 10px;">
+                                <p>The 'vesak_cards' table does not exist. You need to create it first.</p>
+                                <pre>
+CREATE TABLE vesak_cards (
+  id BIGSERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  card_id TEXT NOT NULL UNIQUE,
+  recipient TEXT,
+  message TEXT,
+  theme TEXT DEFAULT 'gold'
+);
+
+-- Enable Row Level Security
+ALTER TABLE vesak_cards ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for public access
+CREATE POLICY "Allow public select"
+  ON vesak_cards
+  FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow public insert"
+  ON vesak_cards
+  FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public update"
+  ON vesak_cards
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+                                </pre>
+                            </div>
+                        `;
+                    }
+                } else {
+                    console.log('Schema check successful');
+                    document.getElementById('schema-status').innerHTML = `
+                        <div class="success">
+                            <strong>Schema Check Successful!</strong> The vesak_cards table exists.
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Schema check error:', err);
+                document.getElementById('schema-status').innerHTML = `
+                    <div class="error">
+                        <strong>Schema Check Error:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Generate unique ID
+        function generateUniqueId() {
+            return Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+        }
+        
+        // Create a test card
+        async function createCard() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Creating card...</p>';
+            
+            try {
+                // Get form values
+                let cardId = document.getElementById('card-id').value.trim();
+                const recipient = document.getElementById('recipient').value.trim();
+                const message = document.getElementById('message').value.trim();
+                const theme = document.getElementById('theme').value;
+                
+                // Generate card ID if not provided
+                if (!cardId) {
+                    cardId = generateUniqueId();
+                }
+                
+                // Create the card in Supabase
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .insert({
+                        card_id: cardId,
+                        recipient: recipient,
+                        message: message,
+                        theme: theme
+                    })
+                    .select();
+                
+                if (error) {
+                    console.error('Error creating card:', error);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error Creating Card:</strong> ${error.message}
+                            <br>Code: ${error.code}
+                        </div>
+                    `;
+                } else {
+                    console.log('Card created successfully:', data);
+                    
+                    // Generate the share link
+                    const baseUrl = window.location.origin + window.location.pathname.replace('supabase-card-creator.html', '');
+                    const shareUrl = `${baseUrl}index.html?card=${cardId}`;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Card Created Successfully!</strong>
+                            <br>Card ID: ${cardId}
+                        </div>
+                        
+                        <div class="link-container">
+                            <p><strong>Share Link:</strong></p>
+                            <a href="${shareUrl}" target="_blank">${shareUrl}</a>
+                            <button onclick="copyToClipboard('${shareUrl}')" style="margin-top: 10px;">Copy Link</button>
+                        </div>
+                        
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    // Refresh the cards list
+                    listCards();
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Unexpected Error:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // List recent cards
+        async function listCards() {
+            const listDiv = document.getElementById('cards-list');
+            listDiv.innerHTML = '<p>Loading cards...</p>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+                
+                if (error) {
+                    console.error('Error listing cards:', error);
+                    listDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error Listing Cards:</strong> ${error.message}
+                            <br>Code: ${error.code}
+                        </div>
+                    `;
+                } else if (!data || data.length === 0) {
+                    listDiv.innerHTML = '<p>No cards found in the database.</p>';
+                } else {
+                    console.log('Cards retrieved:', data);
+                    
+                    // Generate the base URL for sharing
+                    const baseUrl = window.location.origin + window.location.pathname.replace('supabase-card-creator.html', '');
+                    
+                    let cardsHtml = `
+                        <p>Found ${data.length} card(s):</p>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <tr style="background: #f1f1f1;">
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Card ID</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Recipient</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Theme</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Created</th>
+                                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Actions</th>
+                            </tr>
+                    `;
+                    
+                    data.forEach(card => {
+                        const shareUrl = `${baseUrl}index.html?card=${card.card_id}`;
+                        cardsHtml += `
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">${card.card_id}</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">${card.recipient || 'None'}</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">${card.theme || 'gold'}</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">${new Date(card.created_at).toLocaleString()}</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">
+                                    <a href="${shareUrl}" target="_blank" style="display: inline-block; padding: 5px 10px; background: #3498db; color: white; text-decoration: none; border-radius: 4px;">Open</a>
+                                    <button onclick="copyToClipboard('${shareUrl}')" style="margin-left: 5px; padding: 5px; background: #7f8c8d; color: white; border: none; border-radius: 4px; cursor: pointer;">Copy Link</button>
+                                    <button onclick="loadCardInfo('${card.card_id}')" style="margin-left: 5px; padding: 5px; background: #f39c12; color: white; border: none; border-radius: 4px; cursor: pointer;">Load</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    cardsHtml += '</table>';
+                    listDiv.innerHTML = cardsHtml;
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                listDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Unexpected Error:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Load card info into the form
+        async function loadCardInfo(cardId) {
+            try {
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .eq('card_id', cardId)
+                    .limit(1);
+                
+                if (error) {
+                    console.error('Error loading card:', error);
+                    alert('Error loading card: ' + error.message);
+                } else if (data && data.length > 0) {
+                    const card = data[0];
+                    
+                    // Fill the form with card data
+                    document.getElementById('card-id').value = card.card_id;
+                    document.getElementById('recipient').value = card.recipient || '';
+                    document.getElementById('message').value = card.message || '';
+                    document.getElementById('theme').value = card.theme || 'gold';
+                    
+                    alert('Card data loaded into the form!');
+                } else {
+                    alert('Card not found!');
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                alert('Unexpected error: ' + err.message);
+            }
+        }
+        
+        // Copy text to clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            alert('Link copied to clipboard!');
+        }
+        
+        // Event listeners
+        document.getElementById('create-btn').addEventListener('click', createCard);
+        document.getElementById('list-btn').addEventListener('click', listCards);
+        
+        // Initialize
+        testConnection();
+        listCards();
+    </script>
+</body>
+</html> 

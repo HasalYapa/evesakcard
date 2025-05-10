@@ -123,6 +123,14 @@
             script.onload = callback;
             script.onerror = function() {
                 console.error('Failed to load script:', url);
+                if (url.includes('ffmpeg')) {
+                    // If ffmpeg fails to load, try alternative source
+                    const altUrl = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js';
+                    console.log('Trying alternative ffmpeg source:', altUrl);
+                    loadScript(altUrl, function() {
+                        console.log('Alternative ffmpeg loaded successfully');
+                    });
+                }
             };
             document.head.appendChild(script);
         }
@@ -132,9 +140,13 @@
             console.log('html2canvas loaded successfully');
         });
         
-        // Pre-load ffmpeg from permitted CDN
-        loadScript('https://cdn.jsdelivr.net/npm/ffmpeg.js@4.2.9003/ffmpeg.min.js', function() {
-            console.log('ffmpeg.js loaded successfully');
+        // Pre-load ffmpeg from permitted CDN - using a more compatible version
+        loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.10.0/dist/ffmpeg-core.min.js', function() {
+            console.log('ffmpeg-core loaded successfully');
+            // After core is loaded, load the main ffmpeg
+            loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js', function() {
+                console.log('ffmpeg.js loaded successfully');
+            });
         });
     </script>
     
