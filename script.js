@@ -519,18 +519,48 @@ async function saveCardData() {
                 saveStatus.style.display = 'block';
             }
             
-            // Save card data to Supabase
-            const { data, error } = await supabase
+            // First check if the card already exists
+            const { data: existingCard, error: checkError } = await supabase
                 .from('vesak_cards')
-                .upsert({
-                    card_id: cardId,
-                    recipient: cardData.recipient,
-                    message: cardData.message,
-                    theme: cardData.theme,
-                    sender: cardData.sender,
-                    created_at: new Date()
-                })
-                .select();
+                .select('card_id')
+                .eq('card_id', cardId);
+                
+            if (checkError) {
+                console.error('Error checking if card exists:', checkError);
+                // Fallback to insert with try/catch
+            }
+            
+            let result;
+            
+            if (existingCard && existingCard.length > 0) {
+                // Card exists, update it
+                result = await supabase
+                    .from('vesak_cards')
+                    .update({
+                        recipient: cardData.recipient,
+                        message: cardData.message,
+                        theme: cardData.theme,
+                        sender: cardData.sender,
+                        updated_at: new Date()
+                    })
+                    .eq('card_id', cardId)
+                    .select();
+            } else {
+                // Card doesn't exist, insert it
+                result = await supabase
+                    .from('vesak_cards')
+                    .insert({
+                        card_id: cardId,
+                        recipient: cardData.recipient,
+                        message: cardData.message,
+                        theme: cardData.theme,
+                        sender: cardData.sender,
+                        created_at: new Date()
+                    })
+                    .select();
+            }
+            
+            const { data, error } = result;
                 
             if (error) {
                 console.error('Error saving card to Supabase:', error);

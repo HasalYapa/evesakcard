@@ -206,6 +206,13 @@ const SUPABASE_ANON_KEY = 'your-anon-key';</pre>
         </div>
     </div>
 
+    <div id="special-card-test" class="test-panel">
+        <h2>Special Card Test</h2>
+        <p>Test the special card with ID "mai6xoer08bun"</p>
+        <button onclick="testSpecificCard()">Test Specific Card</button>
+        <div id="specific-card-result" class="results"></div>
+    </div>
+
     <script>
         // Supabase configuration
         const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
@@ -721,6 +728,49 @@ const SUPABASE_ANON_KEY = 'your-anon-key';</pre>
         window.addEventListener('load', function() {
             document.getElementById('test-connection').click();
         });
+
+        async function testSpecificCard() {
+            const specificCardResult = document.getElementById('specific-card-result');
+            specificCardResult.innerHTML = '<p>Testing specific card with ID: mai6xoer08bun...</p>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .eq('card_id', 'mai6xoer08bun');
+                
+                if (error) {
+                    specificCardResult.innerHTML = `
+                        <div class="error">
+                            <p><strong>Error:</strong> ${error.message}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (data && data.length > 0) {
+                    const card = data[0];
+                    specificCardResult.innerHTML = `
+                        <div class="success">
+                            <p><strong>Successfully found the special card!</strong></p>
+                            <pre>${JSON.stringify(card, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    specificCardResult.innerHTML = `
+                        <div class="error">
+                            <p><strong>Card not found:</strong> No card with ID "mai6xoer08bun" exists.</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                specificCardResult.innerHTML = `
+                    <div class="error">
+                        <p><strong>Unexpected error:</strong> ${err.message}</p>
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html> 
