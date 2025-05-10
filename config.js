@@ -8,11 +8,21 @@ let supabase;
 
 // Function to initialize Supabase
 function initSupabase() {
-    if (typeof window !== 'undefined' && window.supabase) {
+    if (typeof window !== 'undefined') {
         try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('Supabase client initialized');
-            return true;
+            // Check which property is available - this handles different versions of the Supabase UMD build
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase client initialized via window.supabase');
+                return true;
+            } else if (window.createClient) {
+                supabase = window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase client initialized via window.createClient');
+                return true;
+            } else {
+                console.error('Could not find Supabase client in window object');
+                return false;
+            }
         } catch (err) {
             console.error('Error initializing Supabase client:', err);
             return false;
@@ -27,7 +37,7 @@ const initialized = initSupabase();
 // If not successful, try again when the document is fully loaded
 if (!initialized && typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', function() {
-        if (!supabase && window.supabase) {
+        if (!supabase) {
             initSupabase();
         }
     });
