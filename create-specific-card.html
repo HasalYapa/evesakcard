@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Specific Card ID</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #8e44ad;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 100px;
+        }
+        button {
+            background: #8e44ad;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #9b59b6;
+        }
+        .success {
+            color: #27ae60;
+            background: #e8f8f2;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+            background: #fde9e7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+    <h1>Create Specific Card ID</h1>
+    <p>This tool will create a card with exactly the ID you specify.</p>
+    
+    <div class="card">
+        <div class="form-group">
+            <label for="card-id">Card ID:</label>
+            <input type="text" id="card-id" value="mai6xoer08bun">
+        </div>
+        
+        <div class="form-group">
+            <label for="recipient">Recipient Name:</label>
+            <input type="text" id="recipient" value="Special Recipient">
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message">This is a special test card created with a specific ID. May you be blessed with peace and happiness on Vesak Day.</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="theme">Theme:</label>
+            <select id="theme">
+                <option value="gold">Gold</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+            </select>
+        </div>
+        
+        <button id="create-btn">Create Card</button>
+        
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://cisilrtjdrscxryltkxs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpc2lscnRqZHJzY3hyeWx0a3hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4NzY1NzYsImV4cCI6MjA2MjQ1MjU3Nn0.8Z3FyDF_y81SxaeFXcP8qWLBhHpHkpJs6aOS6NpdNkY';
+        
+        // Initialize the Supabase client
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client initialized');
+        } catch (err) {
+            console.error('Failed to initialize Supabase client:', err);
+            document.getElementById('result').innerHTML = `
+                <div class="error">
+                    <strong>Connection Error:</strong> Failed to initialize Supabase client.
+                    <br>Error: ${err.message}
+                </div>
+            `;
+        }
+        
+        // Create a card with specific ID
+        async function createCard() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Creating card...</p>';
+            
+            try {
+                // Get form values
+                const cardId = document.getElementById('card-id').value.trim();
+                const recipient = document.getElementById('recipient').value.trim();
+                const message = document.getElementById('message').value.trim();
+                const theme = document.getElementById('theme').value;
+                
+                if (!cardId) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> Card ID is required.
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // First check if card exists and delete it if it does
+                const { data: existingCard, error: checkError } = await supabase
+                    .from('vesak_cards')
+                    .select('*')
+                    .eq('card_id', cardId);
+                
+                if (existingCard && existingCard.length > 0) {
+                    console.log('Card exists, deleting first...');
+                    
+                    const { error: deleteError } = await supabase
+                        .from('vesak_cards')
+                        .delete()
+                        .eq('card_id', cardId);
+                    
+                    if (deleteError) {
+                        console.error('Error deleting existing card:', deleteError);
+                        resultDiv.innerHTML = `
+                            <div class="error">
+                                <strong>Error:</strong> Failed to delete existing card.
+                                <br>Error: ${deleteError.message}
+                            </div>
+                        `;
+                        return;
+                    }
+                }
+                
+                // Create the card in Supabase
+                const { data, error } = await supabase
+                    .from('vesak_cards')
+                    .insert({
+                        card_id: cardId,
+                        recipient: recipient,
+                        message: message,
+                        theme: theme
+                    })
+                    .select();
+                
+                if (error) {
+                    console.error('Error creating card:', error);
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error Creating Card:</strong> ${error.message}
+                            <br>Code: ${error.code}
+                        </div>
+                    `;
+                } else {
+                    console.log('Card created successfully:', data);
+                    
+                    // Generate the share link
+                    const baseUrl = window.location.origin + window.location.pathname.replace('create-specific-card.html', '');
+                    const shareUrl = `${baseUrl}index.html?card=${cardId}`;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Card Created Successfully!</strong>
+                            <br>Card ID: ${cardId}
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <p><strong>Share Link:</strong></p>
+                            <p><a href="${shareUrl}" target="_blank">${shareUrl}</a></p>
+                            <button onclick="copyToClipboard('${shareUrl}')" style="margin-top: 10px;">Copy Link</button>
+                        </div>
+                        
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (err) {
+                console.error('Unexpected error:', err);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Unexpected Error:</strong> ${err.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Copy text to clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            alert('Link copied to clipboard!');
+        }
+        
+        // Event listener
+        document.getElementById('create-btn').addEventListener('click', createCard);
+    </script>
+</body>
+</html> 
